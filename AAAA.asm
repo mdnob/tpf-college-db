@@ -6,19 +6,19 @@ STUNUM   DS    XL2      * roll number
 STUNAME	 DS	   CL15     * full name
 STUAGE   DS    XL2      * 2 digit age
 STUTEL   DS	   XL10     * phone number
-STUADDR	 DS    CL40     * mailing address
-STUCRSE  DS    CL3      * major
+STUADR	 DS    CL40     * mailing address
+STUCRS   DS    CL3      * major
 STUSUBJ1 DS    CL20     * subjects
 STUSUBJ2 DS    CL20
 STUSUBJ3 DS    CL20
 STUSUBJ4 DS    CL20
          END
 
-         LA	   R1,MI0ACC      * input start address into R1
-         LA	   R0,MI0CCT	  * Total number of bytes char 160
-         XR	   R2,R2	   * Count for forward slashes, initialize to 0
-         XR	   R3,R3		* Count for comma
-         XR	   R4,R4		* Count for parentheses
+         LA    R1,MI0ACC      * input start address into R1
+         LA    R0,MI0CCT	  * Total number of bytes char 160
+         XR    R2,R2	   * Count for forward slashes, initialize to 0
+         XR    R3,R3		* Count for comma
+         XR    R4,R4		* Count for parentheses
          XR    R5,R5        * PAC
 
 
@@ -106,6 +106,7 @@ SUCCOMMA EQU   *
          EXITC
 SUCPAREN EQU   *
 
+
 * R2, R3, R4 FREE
          XR    R2,R2
          XR    R3,R3
@@ -115,6 +116,7 @@ SUCPAREN EQU   *
          USING STUDENT,R7      * loads R7 with STUDENT DSECT
          GETCC D1,L1       * data level 1 with 381 bytes
          L     R7,CE1CR1   * assign data level to R7
+
 
 * Validate field lengths
 * Name
@@ -154,24 +156,241 @@ NAMHIGH  EQU   *
 * R1 starting address
 * R2 end address of fslash
 * R0,R3,R4,R5,R6 free
-         LR    R0,R2
+         LR    R0,R2       * R0 now has end addr of fslash, R2 free
 
-         LA    R2,STUNAME
-         LA    R3,15
+         LA    R2,STUNAME  * addr of DL1 CBRW for name
+         LA    R3,15       * number of bytes max for name
          
-         LR    R4,R1
+         LR    R4,R1       * actual name start addr
          
-         LR    R5,R2
-         SR    R5,R1
-         MVI   R5,X'40'
+         LR    R5,R0       * load last fslash
+         S     R5,1        * one char before fslash
+         SR    R5,R1       * number of bytes of actual name
+         MVI   R5,X'40'    * fill char is blank
 
-         MVCL  R2,R4
+         MVCL  R2,R4       * Moved name into DL1 CBRW address
+
+
 * Age
+* R0 starting fslash
+* R1 free, but needs new ending fslash
+* R2-R6 free
+         LR    R1,R0       * incremented addr
+* even-odd pairs for MVCL
+         LA    R2,STUAGE   * destination addr in DL1 CBRW
+         LA    R3,2        * max number of bytes/chars
 
-         MVC   TEMPNAME(30),EMPNAME * temp, copied from textbook
+         LR    R4,R0
+         A     R4,1        * starting char addr
+
+AGELOOP  EQU   *
+         A     R1,1     * increment char addr
+
+         CLI   0(R1),X'F0'       * compare with EBCDIC 0
+         BNL   AGELOW              * Not lower than 0
+         WTOPC TEXT='LOW CHAR'
+         EXITC
+AGELOW   EQU   *
+
+         CLI   0(R1),X'F9'       * compare with EBCDIC 9
+         BNH   AGEHIGH           * Not higher than 9
+         WTOPC TEXT='HIGH CHAR'
+         EXITC
+AGEHIGH  EQU   *
          
+         CLI   0(R1),X'61'  * EBCDIC forward slash
+         BNE   AGELOOP    * Loops if no ending fslash
+* R1 now has ending fslash addr
+* Calculate number of actual bytes of age
+         LR    R5,R1
+         S     R5,2
+         S     R5,R0       * actual bytes of age
+
+* verify if 2 or under bytes
+         C     R5,2       * Check if age length over 2 bytes
+         BNH   AGELEN
+         WTOPC TEXT='AGE OVER 2 BYTES'
+         EXITC
+AGELEN   EQU   *
+
+         MVI   R5,X'40'    * fill char is blank
+
+         MVCL  R2,R4       * Moved name into DL1 CBRW address
+
+
+* Phone number
+* R1 starting fslash
+* R0 free, but needs new ending fslash
+* R2-R6 free
+         LR    R0,R1       * copy addr to R0, R1 incremented addr
+* even-odd pairs for MVCL
+         LA    R2,STUTEL   * destination addr in DL1 CBRW
+         LA    R3,10        * max number of bytes/chars
+
+         LR    R4,R0
+         A     R4,1        * starting char addr
+
+TELLOOP  EQU   *
+         A     R1,1     * increment char addr
+
+         CLI   0(R1),X'F0'       * compare with EBCDIC 0
+         BNL   TELLOW              * Not lower than 0
+         WTOPC TEXT='LOW CHAR'
+         EXITC
+TELLOW   EQU   *
+
+         CLI   0(R1),X'F9'       * compare with EBCDIC 9
+         BNH   TELHIGH           * Not higher than 9
+         WTOPC TEXT='HIGH CHAR'
+         EXITC
+TELHIGH  EQU   *
+         
+         CLI   0(R1),X'61'  * EBCDIC forward slash
+         BNE   TELLOOP    * Loops if no ending fslash
+* R1 now has ending fslash addr
+* Calculate number of actual bytes of tel
+         LR    R5,R1
+         S     R5,2
+         S     R5,R0       * actual bytes of tel
+
+* verify if 2 or under bytes
+         C     R5,10       * Check if tel length over 10 bytes
+         BNH   TELLEN
+         WTOPC TEXT='TEL OVER 10 BYTES'
+         EXITC
+TELLEN   EQU   *
+
+         MVI   R5,X'40'    * fill char is blank
+
+         MVCL  R2,R4       * Moved name into DL1 CBRW address
+
+
+* Address
+* R1 starting fslash
+* R0 free, but needs new ending fslash
+* R2-R6 free
+         LR    R0,R1       * copy addr to R0, R1 incremented addr
+* even-odd pairs for MVCL
+         LA    R2,STUADR   * destination addr in DL1 CBRW
+         LA    R3,40        * max number of bytes/chars
+
+         LR    R4,R0
+         A     R4,1        * starting ( addr
+
+         CLI   0(R4),X'4D'    * EBCDIC for (
+         BE    ADROPAR        * check if ( is present
+         WTOPC TEXT='ADR OPEN PARENTHESES MISSING'
+         EXITC
+ADROPAR  EQU   *
+         
+
+ADRLOOP  EQU   *
+         A     R1,1     * increment char addr
+
+         CLI   0(R1),X'E9'       * compare with EBCDIC Z
+         BNL   ADRALP             * Not lower than Z
+         CLI   0(R1),X'C1'       * compare with EBCDIC A
+         BNL   ADRALP            * Not lower than A
+         WTOPC TEXT='ADDRESS IS NOT IN ALPHABET'
+         EXITC
+ADRALP   EQU   *
+
+         CLI   0(R1),X'F9'       * compare with EBCDIC 9
+         BNL   ADRNUM             * Not lower than 9
+         CLI   0(R1),X'F1'       * compare with EBCDIC 1
+         BNL   ADRNUM            * Not lower than 1
+         WTOPC TEXT='ADDRESS IS NOT NUMBER'
+         EXITC
+ADRNUM   EQU   *
+         
+         CLI   0(R1),X'40'       * compare with EBCDIC blank
+         BE    ADRSPL           * equals blank
+         CLI   0(R1),X'60'       * compare with EBCDIC /
+         BE    ADRSPL           * equals /
+         CLI   0(R1),X'61'       * compare with EBCDIC -
+         BE    ADRSPL           * equals -
+         WTOPC TEXT='ADR INVALID CHAR'
+         EXITC
+ADRSPL   EQU   *
+         
+         CLI   0(R1),X'5D'  * EBCDIC )
+         BNE   ADRLOOP    * Loops if no ending ) close parentheses
+* R1 now has ending ) addr
+* Calculate number of actual bytes
+         LR    R5,R1
+         S     R5,R0       * actual bytes
+         S     R5,3        * deduct start and end // and start (
+
+* verify bytes
+         C     R5,R3       * Check if length over 
+         BNH   ADRLEN
+         WTOPC TEXT='ADR OVER 40 BYTES'
+         EXITC
+ADRLEN   EQU   *
+
+         MVI   R5,X'40'    * fill char is blank
+         A     R4,1        * at starting char instead of (
+
+         MVCL  R2,R4       * Moved name into DL1 CBRW address
+
+
+* Course
+         A     R1,1  * R1 starting fslash
+* R0 free, but needs new ending fslash
+* R2-R6 free
+         LR    R0,R1       * incremented addr
+* even-odd pairs for MVCL
+         LA    R2,STUCRS   * destination addr in DL1 CBRW
+         LA    R3,3        * max number of bytes/chars
+
+         LR    R4,R0
+         A     R4,1        * starting char addr
+         LA    R5,3        * number of bytes
+
+CRSLOOP  EQU   *
+         A     R1,1     * increment char addr
+
+         CLI   0(R1),X'C1'       * compare with EBCDIC A
+         BNL   CRSLOW              * Not lower than A
+         WTOPC TEXT='LOW CHAR'
+         EXITC
+CRSLOW   EQU   *
+         CLI   0(R1),X'E9'       * compare with EBCDIC Z
+         BNH   CRSHIGH           * Not higher than Z
+         WTOPC TEXT='HIGH CHAR'
+         EXITC
+CRSHIGH  EQU   *
+         
+         CLI   0(R1),X'61'  * EBCDIC forward slash
+         BNE   CRSLOOP    * Loops if no ending fslash
+* R1 now has ending fslash addr
+* Calculate number of actual bytes
+         LR    R5,R1
+         S     R5,2
+         S     R5,R0       * actual bytes
+
+* verify if 2 or under bytes
+         C     R5,3       * Check if length equal to 3 bytes
+         BE    AGELEN
+         WTOPC TEXT='AGE OVER 2 BYTES'
+         EXITC
+CRSLEN   EQU   *
+
+         MVI   R5,X'40'    * fill char is blank
+* fill char not needed as number of bytes should equal 3 at all times
+         MVCL  R2,R4       * Moved name into DL1 CBRW address
+         
+* need to check if CME, SCI, or ART only
+
+
+* Subjects
+* R1 starting fslash
+* RO free, but needs next end fslash
+* R2-R6 free
+
+
 * SUCCESS
-         WTO   TEXT='EXECUTED SUCCESSFULLY'
+         WTOPC TEXT='EXECUTED SUCCESSFULLY'
          EXITC 
 
          FINIS
