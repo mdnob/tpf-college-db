@@ -30,9 +30,9 @@ Create a **college database** to:
 
 ### Valid Subjects by Course
 
-* **Commerce**: Business law, Economics, Maths, Tally, etc.
-* **Science**: Maths, Physics, Economics, IT, etc.
-* **Arts**: History, Sociology, Music, Fine Arts, etc.
+* **Commerce**: Business Law, Economics, Maths, Tally, Language, Accountancy, and Business Studies 
+* **Science**: Maths, Physics, Economics, Biology, Information Technology, and Language 
+* **Arts**: History, Sociology, Geography, Fine Arts, Music, Political Science, Geography, Computer Science, Regional Language, and Physical Education 
 
 ---
 
