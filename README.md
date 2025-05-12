@@ -32,7 +32,7 @@ Create a **college database** to:
 
 * **Commerce**: Business Law, Economics, Maths, Tally, Language, Accountancy, and Business Studies 
 * **Science**: Maths, Physics, Economics, Biology, Information Technology, and Language 
-* **Arts**: History, Sociology, Geography, Fine Arts, Music, Political Science, Geography, Computer Science, Regional Language, and Physical Education 
+* **Arts**: History, Sociology, Geography, Fine Arts, Music, Political Science, Computer Science, Regional Language, and Physical Education 
 
 ---
 
