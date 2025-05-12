@@ -380,8 +380,16 @@ CRSLEN   EQU   *
 * fill char not needed as number of bytes should equal 3 at all times
          MVCL  R2,R4       * Moved name into DL1 CBRW address
          
-* need to check if CME, SCI, or ART only
-
+* check if CME, SCI, or ART only
+         CLC   STUCRS,=C'CME'
+         BE    SUCCRS
+         CLC   STUCRS,=C'SCI'
+         BE    SUCCRS
+         CLC   STUCRS,=C'ART'
+         BE    SUCCRS
+         WTOPC TEXT='CRS NOT CME, SCI, OR ART'  * Error
+         EXITC
+SUCCRS   EQU   *
 
 * Subjects
 * R1 starting fslash
