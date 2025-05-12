@@ -559,6 +559,39 @@ ITER1    EQU   *
 
 
 CRSSCI   EQU   *
+         CLC   R1,=C'MATHS'
+         BE    SCIFND
+         CLC   R1,=C'PHYSICS'
+         BE    SCIFND
+         CLC   R1,=C'ECONOMICS'
+         BE    SCIFND
+         CLC   R1,=C'BIOLOGY'
+         BE    SCIFND
+         CLC   R1,=C'INFORMATION TECHNOLO'   * Information Technology
+         BE    SCIFND                        * too long, over 20 bytes
+         CLC   R1,=C'LANGUAGE'
+         BE    SCIFND
+         WTOPC TEXT='INVALD SBJ AND SCI COMBINATION'  * Error
+         EXITC
+SCIFND   EQU   *
+
+         C     R0,3
+         BNE   ITER3
+         LA    R1,STUSBJ3
+ITER3    EQU   *
+
+         C     R0,2
+         BNE   ITER2
+         LA    R1,STUSBJ2
+ITER2    EQU   *
+
+         C     R0,1
+         BNE   ITER1
+         LA    R1,STUSBJ1
+ITER1    EQU   *
+
+         BCT   R0,CRSCME
+
 CRSART   EQU   *
 
 * SUCCESS
