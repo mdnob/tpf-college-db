@@ -523,22 +523,22 @@ SBJ4CHK  EQU   *
 * Logic for CME, loop
 CRSCME   EQU   *
          CLC   R1,=C'BUSINESS LAW'
-         BE    SBJFND
+         BE    CMEFND
          CLC   R1,=C'ECONOMICS'
-         BE    SBJFND
+         BE    CMEFND
          CLC   R1,=C'MATHS'
-         BE    SBJFND
+         BE    CMEFND
          CLC   R1,=C'TALLY'
-         BE    SBJFND
+         BE    CMEFND
          CLC   R1,=C'LANGUAGE'
-         BE    SBJFND
+         BE    CMEFND
          CLC   R1,=C'ACCOUNTANCY'
-         BE    SBJFND
+         BE    CMEFND
          CLC   R1,=C'BUSINESS STUDIES'
-         BE    SBJFND
+         BE    CMEFND
          WTOPC TEXT='INVALD SBJ AND CRS COMBINATION'  * Error
          EXITC
-SBJFND   EQU   *
+CMEFND   EQU   *
 
          C     R0,3
          BNE   ITER3
