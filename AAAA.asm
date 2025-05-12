@@ -536,7 +536,7 @@ CRSCME   EQU   *
          BE    CMEFND
          CLC   R1,=C'BUSINESS STUDIES'
          BE    CMEFND
-         WTOPC TEXT='INVALD SBJ AND CRS COMBINATION'  * Error
+         WTOPC TEXT='INVALD SBJ AND CME COMBINATION'  * Error
          EXITC
 CMEFND   EQU   *
 
