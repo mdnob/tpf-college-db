@@ -394,19 +394,91 @@ CRSLEN   EQU   *
 * R1 starting fslash
 * RO free, but needs next end fslash
 * R2-R6 free
-CRSCME   EQU   *
 
+* SBJ1
 * find different subjects and assign to dsect memory
 * MVCL prep, even-odd pairs
 * R2, R3
-         LA    R2,STUSUBJ1
+         LA    R2,STUSBJ1
          LA    R3,20
 
-* R4,R5
+* R4
          LR    R4,R1    * assign with starting slash
          A     R4,1     * starting char
          
-* calculate actual bytes
+* R5 calculate actual bytes
+         LR    R5,R4
+         A     R5,20    * max bytes of subject
+         XR    R0,R0
+         IC    R0,X'6B' * ebcdic comma
+         SRST  R5,R4    * R5 holds address of comma
+         LR    R1,R5    * save comma for following SBJ2
+         S     R5,1
+         SR    R5,R4    * R5 has number of bytes the subject holds
+         MVI   R5,X'40' * fill blank char
+
+         MVCL  R2,R4    * STUSBJ1 now holds input subject value
+
+* SBJ2
+* find different subjects and assign to dsect memory
+* MVCL prep, even-odd pairs
+* R2, R3
+         LA    R2,STUSBJ2
+         LA    R3,20
+
+* R4
+         LR    R4,R1    * assign with starting slash
+         A     R4,1     * starting char
+         
+* R5, calculate actual bytes
+         LR    R5,R4
+         A     R5,20    * max bytes of subject
+         XR    R0,R0
+         IC    R0,X'6B' * ebcdic comma
+         SRST  R5,R4    * R5 holds address of comma
+         LR    R1,R5    * save comma for following SBJ3
+         S     R5,1
+         SR    R5,R4    * R5 has number of bytes the subject holds
+         MVI   R5,X'40' * fill blank char
+
+         MVCL  R2,R4    * STUSBJ2 now holds input subject value
+
+* SBJ3
+* find different subjects and assign to dsect memory
+* MVCL prep, even-odd pairs
+* R2, R3
+         LA    R2,STUSBJ3
+         LA    R3,20
+
+* R4 
+         LR    R4,R1    * assign with starting slash
+         A     R4,1     * starting char
+         
+* R5, calculate actual bytes
+         LR    R5,R4
+         A     R5,20    * max bytes of subject
+         XR    R0,R0
+         IC    R0,X'6B' * ebcdic comma
+         SRST  R5,R4    * R5 holds address of comma
+         LR    R1,R5    * save comma for following SBJ4
+         S     R5,1
+         SR    R5,R4    * R5 has number of bytes the subject holds
+         MVI   R5,X'40' * fill blank char
+
+         MVCL  R2,R4    * STUSBJ3 now holds input subject value
+
+* SBJ4
+* find different subjects and assign to dsect memory
+* MVCL prep, even-odd pairs
+* R2, R3
+         LA    R2,STUSBJ4
+         LA    R3,20
+
+* R4
+         LR    R4,R1    * assign with starting slash
+         A     R4,1     * starting char
+         
+* R5, calculate actual bytes
          LR    R5,R4
          A     R5,20    * max bytes of subject
          XR    R0,R0
@@ -416,7 +488,7 @@ CRSCME   EQU   *
          SR    R5,R4    * R5 has number of bytes the subject holds
          MVI   R5,X'40' * fill blank char
 
-         MVCL  R2,R4    * STUSBJ1 now holds input subject value
+         MVCL  R2,R4    * STUSBJ3 now holds input subject value
 
 * Logic for CME
          CLC   STUSUBJ1,=C'BUSINESS LAW'
