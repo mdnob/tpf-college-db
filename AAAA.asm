@@ -371,7 +371,7 @@ CRSHIGH  EQU   *
 
 * verify if 2 or under bytes
          C     R5,3       * Check if length equal to 3 bytes
-         BE    AGELEN
+         BE    CRSLEN
          WTOPC TEXT='AGE OVER 2 BYTES'
          EXITC
 CRSLEN   EQU   *
