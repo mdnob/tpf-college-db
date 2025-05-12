@@ -394,7 +394,51 @@ CRSLEN   EQU   *
 * R1 starting fslash
 * RO free, but needs next end fslash
 * R2-R6 free
+CRSCME   EQU   *
 
+* find different subjects and assign to dsect memory
+* MVCL prep, even-odd pairs
+* R2, R3
+         LA    R2,STUSUBJ1
+         LA    R3,20
+
+* R4,R5
+         LR    R4,R1    * assign with starting slash
+         A     R4,1     * starting char
+         
+* calculate actual bytes
+         LR    R5,R4
+         A     R5,20    * max bytes of subject
+         XR    R0,R0
+         IC    R0,X'6B' * ebcdic comma
+         SRST  R5,R4    * R5 holds address of comma
+         S     R5,1
+         SR    R5,R4    * R5 has number of bytes the subject holds
+         MVI   R5,X'40' * fill blank char
+
+         MVCL  R2,R4    * STUSBJ1 now holds input subject value
+
+* Logic for CME
+         CLC   STUSUBJ1,=C'BUSINESS LAW'
+         BE    SBJ1FND
+         CLC   STUSUBJ1,=C'ECONOMICS'
+         BE    SBJ1FND
+         CLC   STUSUBJ1,=C'MATHS'
+         BE    SBJ1FND
+         CLC   STUSUBJ1,=C'TALLY'
+         BE    SBJ1FND
+         CLC   STUSUBJ1,=C'LANGUAGE'
+         BE    SBJ1FND
+         CLC   STUSUBJ1,=C'ACCOUNTANCY'
+         BE    SBJ1FND
+         CLC   STUSUBJ1,=C'BUSINESS STUDIES'
+         BE    SBJ1FND
+         WTOPC TEXT='INVALD SBJ AND CRS COMBINATION'  * Error
+         EXITC
+SBJ1FND  EQU   *
+
+CRSSCI   EQU   *
+CRSART   EQU   *
 
 * SUCCESS
          WTOPC TEXT='EXECUTED SUCCESSFULLY'
