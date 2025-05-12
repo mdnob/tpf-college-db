@@ -590,7 +590,7 @@ ITER2    EQU   *
          LA    R1,STUSBJ1
 ITER1    EQU   *
 
-         BCT   R0,CRSCME
+         BCT   R0,CRSSCI
 
 CRSART   EQU   *
 
