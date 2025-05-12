@@ -382,14 +382,13 @@ CRSLEN   EQU   *
          
 * check if CME, SCI, or ART only
          CLC   STUCRS,=C'CME'
-         BE    SUCCRS
+         BE    CRSCME
          CLC   STUCRS,=C'SCI'
-         BE    SUCCRS
+         BE    CRSSCI
          CLC   STUCRS,=C'ART'
-         BE    SUCCRS
+         BE    CRSART
          WTOPC TEXT='CRS NOT CME, SCI, OR ART'  * Error
          EXITC
-SUCCRS   EQU   *
 
 * Subjects
 * R1 starting fslash
