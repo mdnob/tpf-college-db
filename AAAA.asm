@@ -8,10 +8,10 @@ STUAGE   DS    XL2      * 2 digit age
 STUTEL   DS	   XL10     * phone number
 STUADR	 DS    CL40     * mailing address
 STUCRS   DS    CL3      * major
-STUSUBJ1 DS    CL20     * subjects
-STUSUBJ2 DS    CL20
-STUSUBJ3 DS    CL20
-STUSUBJ4 DS    CL20
+STUSBJ1  DS    CL20     * subjects
+STUSBJ2  DS    CL20
+STUSBJ3  DS    CL20
+STUSBJ4  DS    CL20
          END
 
          LA    R1,MI0ACC      * input start address into R1
