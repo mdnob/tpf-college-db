@@ -379,16 +379,6 @@ CRSLEN   EQU   *
          MVI   R5,X'40'    * fill char is blank
 * fill char not needed as number of bytes should equal 3 at all times
          MVCL  R2,R4       * Moved name into DL1 CBRW address
-         
-* check if CME, SCI, or ART only
-         CLC   STUCRS,=C'CME'
-         BE    CRSCME
-         CLC   STUCRS,=C'SCI'
-         BE    CRSSCI
-         CLC   STUCRS,=C'ART'
-         BE    CRSART
-         WTOPC TEXT='CRS NOT CME, SCI, OR ART'  * Error
-         EXITC
 
 * Subjects
 * R1 starting fslash
@@ -490,24 +480,59 @@ CRSLEN   EQU   *
 
          MVCL  R2,R4    * STUSBJ3 now holds input subject value
 
-* Logic for CME
-         CLC   STUSUBJ1,=C'BUSINESS LAW'
-         BE    SBJ1FND
-         CLC   STUSUBJ1,=C'ECONOMICS'
-         BE    SBJ1FND
-         CLC   STUSUBJ1,=C'MATHS'
-         BE    SBJ1FND
-         CLC   STUSUBJ1,=C'TALLY'
-         BE    SBJ1FND
-         CLC   STUSUBJ1,=C'LANGUAGE'
-         BE    SBJ1FND
-         CLC   STUSUBJ1,=C'ACCOUNTANCY'
-         BE    SBJ1FND
-         CLC   STUSUBJ1,=C'BUSINESS STUDIES'
-         BE    SBJ1FND
+* Completed storing all inputs
+* Now, validate CRS with SBJ combinations
+
+         LA    R0,4        * iterate count
+         LA    R1,STUSBJ4 * dynamic address for SBJs
+
+* check if CME, SCI, or ART only
+         CLC   STUCRS,=C'CME'
+         BE    CRSCME
+         CLC   STUCRS,=C'SCI'
+         BE    CRSSCI
+         CLC   STUCRS,=C'ART'
+         BE    CRSART
+         WTOPC TEXT='CRS NOT CME, SCI, OR ART'  * Error
+         EXITC
+
+* Logic for CME, loop
+CRSCME   EQU   *
+         CLC   R1,=C'BUSINESS LAW'
+         BE    SBJFND
+         CLC   R1,=C'ECONOMICS'
+         BE    SBJFND
+         CLC   R1,=C'MATHS'
+         BE    SBJFND
+         CLC   R1,=C'TALLY'
+         BE    SBJFND
+         CLC   R1,=C'LANGUAGE'
+         BE    SBJFND
+         CLC   R1,=C'ACCOUNTANCY'
+         BE    SBJFND
+         CLC   R1,=C'BUSINESS STUDIES'
+         BE    SBJFND
          WTOPC TEXT='INVALD SBJ AND CRS COMBINATION'  * Error
          EXITC
-SBJ1FND  EQU   *
+SBJFND   EQU   *
+
+         C     R0,3
+         BNE   ITER3
+         LA    R1,STUSBJ3
+ITER3    EQU   *
+
+         C     R0,2
+         BNE   ITER2
+         LA    R1,STUSBJ2
+ITER2    EQU   *
+
+         C     R0,1
+         BNE   ITER1
+         LA    R1,STUSBJ1
+ITER1    EQU   *
+
+         BCT   R0,CRSCME
+
 
 CRSSCI   EQU   *
 CRSART   EQU   *
