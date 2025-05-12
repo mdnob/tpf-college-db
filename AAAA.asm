@@ -593,6 +593,44 @@ ITER1    EQU   *
          BCT   R0,CRSSCI
 
 CRSART   EQU   *
+         CLC   R1,=C'HISTORY'
+         BE    ARTFND
+         CLC   R1,=C'SOCIOLOGY'
+         BE    ARTFND
+         CLC   R1,=C'GEOGRAPHY'
+         BE    ARTFND
+         CLC   R1,=C'FINE ARTS'
+         BE    ARTFND
+         CLC   R1,=C'MUSIC'
+         BE    ARTFND
+         CLC   R1,=C'POLITICAL SCIENCE'
+         BE    ARTFND
+         CLC   R1,=C'COMPUTER SCIENCE'
+         BE    ARTFND
+         CLC   R1,=C'REGIONAL LANGUAGE'
+         BE    ARTFND
+         CLC   R1,=C'PHYSICAL EDUCATION'
+         BE    ARTFND
+         WTOPC TEXT='INVALD SBJ AND ART COMBINATION'  * Error
+         EXITC
+ARTFND   EQU   *
+
+         C     R0,3
+         BNE   ITER3
+         LA    R1,STUSBJ3
+ITER3    EQU   *
+
+         C     R0,2
+         BNE   ITER2
+         LA    R1,STUSBJ2
+ITER2    EQU   *
+
+         C     R0,1
+         BNE   ITER1
+         LA    R1,STUSBJ1
+ITER1    EQU   *
+
+         BCT   R0,CRSART
 
 * SUCCESS
          WTOPC TEXT='EXECUTED SUCCESSFULLY'
