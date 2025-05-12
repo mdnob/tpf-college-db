@@ -398,13 +398,19 @@ CRSLEN   EQU   *
          
 * R5 calculate actual bytes
          LR    R5,R4
-         A     R5,20    * max bytes of subject
+         A     R5,30    * max bytes of subject plus overhead
          XR    R0,R0
          IC    R0,X'6B' * ebcdic comma
          SRST  R5,R4    * R5 holds address of comma
          LR    R1,R5    * save comma for following SBJ2
          S     R5,1
          SR    R5,R4    * R5 has number of bytes the subject holds
+
+         C     R5,20    * check if bytes is over 20 bytes or chars
+         BE    SBJ1CHK
+         WTOPC TEXT='SBJ1 INPUT LENGTH IS OVER 20 CHARS'
+SBJ1CHK  EQU   *
+
          MVI   R5,X'40' * fill blank char
 
          MVCL  R2,R4    * STUSBJ1 now holds input subject value
@@ -422,13 +428,19 @@ CRSLEN   EQU   *
          
 * R5, calculate actual bytes
          LR    R5,R4
-         A     R5,20    * max bytes of subject
+         A     R5,30    * max bytes of subject plus overhead
          XR    R0,R0
          IC    R0,X'6B' * ebcdic comma
          SRST  R5,R4    * R5 holds address of comma
          LR    R1,R5    * save comma for following SBJ3
          S     R5,1
          SR    R5,R4    * R5 has number of bytes the subject holds
+
+         C     R5,20    * check if bytes is over 20 bytes or chars
+         BE    SBJ2CHK
+         WTOPC TEXT='SBJ2 INPUT LENGTH IS OVER 20 CHARS'
+SBJ2CHK  EQU   *
+
          MVI   R5,X'40' * fill blank char
 
          MVCL  R2,R4    * STUSBJ2 now holds input subject value
@@ -446,13 +458,19 @@ CRSLEN   EQU   *
          
 * R5, calculate actual bytes
          LR    R5,R4
-         A     R5,20    * max bytes of subject
+         A     R5,30    * max bytes of subject plus overhead
          XR    R0,R0
          IC    R0,X'6B' * ebcdic comma
          SRST  R5,R4    * R5 holds address of comma
          LR    R1,R5    * save comma for following SBJ4
          S     R5,1
          SR    R5,R4    * R5 has number of bytes the subject holds
+
+         C     R5,20    * check if bytes is over 20 bytes or chars
+         BE    SBJ3CHK
+         WTOPC TEXT='SB3 INPUT LENGTH IS OVER 20 CHARS'
+SBJ3CHK  EQU   *
+
          MVI   R5,X'40' * fill blank char
 
          MVCL  R2,R4    * STUSBJ3 now holds input subject value
@@ -470,12 +488,18 @@ CRSLEN   EQU   *
          
 * R5, calculate actual bytes
          LR    R5,R4
-         A     R5,20    * max bytes of subject
+         A     R5,30    * max bytes of subject plus overhead
          XR    R0,R0
          IC    R0,X'6B' * ebcdic comma
          SRST  R5,R4    * R5 holds address of comma
          S     R5,1
          SR    R5,R4    * R5 has number of bytes the subject holds
+
+         C     R5,20    * check if bytes is over 20 bytes or chars
+         BE    SBJ4CHK
+         WTOPC TEXT='SBJ4 INPUT LENGTH IS OVER 20 CHARS'
+SBJ4CHK  EQU   *
+
          MVI   R5,X'40' * fill blank char
 
          MVCL  R2,R4    * STUSBJ3 now holds input subject value
