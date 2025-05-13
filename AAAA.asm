@@ -615,6 +615,36 @@ ITER1    EQU   *
 
          BCT   R0,CRSART
 
+
+* ENTRC to next program with A, U, *, D functionalities
+
+         LA    R1,MI0ACC
+
+* Add
+         CLI   0(R1),X'C1'    * EBCDIC for A
+         BNE   ADD            * Skip
+         ENTRC BBBB
+ADD      EQU   *
+
+* Update
+         CLI   0(R1),X'E4'
+         BNE   UPD
+         ENTRC BBBB
+UPD      EQU   *
+
+* Display
+         CLI   0(R1),X'5C'
+         BNE   DISP
+         ENTRC CCCC
+DISP     EQU   *
+
+* Delete
+         CLI   0(R1),X'C4'
+         BNE   DEL
+         ENTRC DDDD
+DEL      EQU   *
+
+
 * SUCCESS
          WTOPC TEXT='EXECUTED SUCCESSFULLY'
          EXITC 
