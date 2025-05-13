@@ -22,32 +22,15 @@ STUSBJ4  DS    CL20
          XR    R5,R5        * PAC
 
 
-* Check PAC
-* A, U, *, D corresponds with 1, 2, 3, 4
-* Add
+* Check PAC A, U, *, D
          CLI   0(R1),X'C1'    * EBCDIC for A
-         BNE   ADD            * Skip
-         A     R5,1
-ADD      EQU   *
-* Update
+         BE    SUCPAC
          CLI   0(R1),X'E4'
-         BNE   UPD
-         A     R5,2
-UPD      EQU   *
-* Display
+         BE    SUCPAC
          CLI   0(R1),X'5C'
-         BNE   DISP
-         A     R5,3
-DISP     EQU   *
-* Delete
+         BE    SUCPAC
          CLI   0(R1),X'C4'
-         BNE   DEL
-         A     R5,4
-DEL      EQU   *
-
-* Check PAC
-         C     R1,0
-         BNE   SUCPAC   * Valid PAC value not found
+         BE    SUCPAC
          WTO   TEXT='INVALID PAC' * Invalid PAC at beginning of MI0ACC
          EXITC
 SUCPAC   EQU   *
