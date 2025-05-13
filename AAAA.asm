@@ -22,6 +22,11 @@ STUSPR   DS    CL38     * spare 38 bytes
          XR    R4,R4	   * Count for parentheses
          XR    R5,R5       * PAC
 
+* Load entry input into data level memory
+         USING STUDENT,R7      * loads R7 with STUDENT DSECT
+         GETCC D1,L1       * data level 1 with 381 bytes
+         L     R7,CE1CR1   * assign data level to R7
+
 
 * Check PAC A, U, *, D
          CLI   0(R1),X'C1'    * EBCDIC for A
@@ -96,17 +101,11 @@ SUCPAREN EQU   *
          XR    R3,R3
          XR    R4,R4
 
-* Load entry input into data level memory
-         USING STUDENT,R7      * loads R7 with STUDENT DSECT
-         GETCC D1,L1       * data level 1 with 381 bytes
-         L     R7,CE1CR1   * assign data level to R7
-
-
 * Validate field lengths
 * Name
          LA	   R1,MI0ACC+2      * input name start address into R1
-         LR    R2,R1            * copy register, as R2 will have output
-         LA    R3,15(R1)      * max num bytes forward as last char
+         LR    R2,15(R1)       * copy register, as R2 will have output
+         LA    R3,R1      * max num bytes forward as last char
          XR    R0,R0
          IC    R0,X'61'    * fslash ebcdic
          SRST  R2,R3       * R2 now holds address of next fslash
