@@ -1,25 +1,26 @@
          BEGIN
 
 * Student DSECT
-STUDENT  DSECT
+STUDENT  DSECT          * 190 bytes
 STUNUM   DS    XL2      * roll number
-STUNAME	 DS	   CL15     * full name
+STUNAM	 DS	   CL15     * full name
 STUAGE   DS    XL2      * 2 digit age
 STUTEL   DS	   XL10     * phone number
 STUADR	 DS    CL40     * mailing address
-STUCRS   DS    CL3      * major
+STUCRS   DS    CL3      * course
 STUSBJ1  DS    CL20     * subjects
 STUSBJ2  DS    CL20
 STUSBJ3  DS    CL20
-STUSBJ4  DS    CL20
+STUSBJ4  DS    CL20     * 152 bytes from here
+STUSPR   DS    CL38     * spare 38 bytes
          END
 
-         LA    R1,MI0ACC      * input start address into R1
-         LA    R0,MI0CCT	  * Total number of bytes char 160
-         XR    R2,R2	   * Count for forward slashes, initialize to 0
-         XR    R3,R3		* Count for comma
-         XR    R4,R4		* Count for parentheses
-         XR    R5,R5        * PAC
+         LA    R1,MI0ACC   * input start address into R1
+         LA    R0,MI0CCT   * Total number of bytes char 160
+         XR    R2,R2       * Count for forward slashes, initialize to 0
+         XR    R3,R3	   * Count for comma
+         XR    R4,R4	   * Count for parentheses
+         XR    R5,R5       * PAC
 
 
 * Check PAC A, U, *, D
@@ -43,15 +44,15 @@ LOOP     EQU   *
          
 * Check for forward slash
          CLI   0(R1),X'61'  * EBCDIC forward slash
-         BNE   SLASH    * skips increment
+         BNE   SLASHES    * skips increment
          A     R2,1		   * Increment forward slash count
-SLASH    EQU   *
+SLASHES  EQU   *
          
 * Check for comma
          CLI   0(R1),X'6B' * EBCDIC forward slash
-         BNE   COMMA    * skips increment count of comma
+         BNE   COMMAS    * skips increment count of comma
          A     R3,1		* Increment forward slash count
-COMMA    EQU   *
+COMMAS   EQU   *
          
 * Check for open paren
          CLI   0(R1),X'4D'    * EBCDIC open parenthesis
@@ -141,7 +142,7 @@ NAMHIGH  EQU   *
 * R0,R3,R4,R5,R6 free
          LR    R0,R2       * R0 now has end addr of fslash, R2 free
 
-         LA    R2,STUNAME  * addr of DL1 CBRW for name
+         LA    R2,STUNAM   * addr of DL1 CBRW for name
          LA    R3,15       * number of bytes max for name
          
          LR    R4,R1       * actual name start addr
