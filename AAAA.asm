@@ -43,6 +43,17 @@ SUCPAC   EQU   *
 
          A     R1,1     * Next char
 
+* Branch to * and D entry validation, as it requires different format
+         CLI   0(R1),X'C1' * A
+         BE    AUPASS
+         CLI   0(R1),X'E4' * U
+         BE    AUPASS
+         B     VALID2      * Branch to * and D entry validation
+AUPASS   EQU   *
+
+
+* A and U PACs continue
+
          
 * Loops the number of input chars
 LOOP     EQU   *
@@ -615,6 +626,32 @@ ITER1    EQU   *
 
          BCT   R0,CRSART
 
+         B     SKPSEC      * skips disp and del code sect
+
+* Asterisk and D entry validation
+VALID2   EQU   *
+                  
+* Loops the number of input chars
+LOOP2    EQU   *
+         
+* Check for forward slash
+         CLI   0(R1),X'61'  * EBCDIC forward slash
+         BNE   DDSLHS    * skips increment
+         A     R2,1		   * Increment forward slash count
+DDSLHS   EQU   *
+
+         A     R1,1		* Increment address for next char
+         BCT   R0,LOOP2
+
+* Validate number of slashes
+         C     R2,2
+         BE    TWOSLH
+         WTOPC TEXT='NOT 2 SLASHES FOR DISP OR DEL'
+         EXITC
+TWOSLH   EQU   *
+
+
+SKPSEC   EQU   *
 
 * ENTRC to next program with A, U, *, D functionalities
 
