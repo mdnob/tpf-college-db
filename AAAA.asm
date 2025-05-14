@@ -713,6 +713,74 @@ DDSLHS   EQU   *
          EXITC
 TWOSLH   EQU   *
 
+* registers
+         LA    R1,MI0ACC+1    * starting slash of CRS
+         XR    R2,R2          * cleared, 0
+         XR    R0,R0          * cleared, 0
+
+* now validate and store CRS and RNUM or NAM for DISP and DEL
+
+* Course
+* R1 holds starting slash
+* R0 free, but needs new ending fslash
+* R2-R6 free
+         LR    R0,R1       * incremented addr
+* even-odd pairs for MVCL
+         LA    R2,STUCRS   * destination addr in DL1 CBRW
+         LA    R3,3        * max number of bytes/chars
+
+         LR    R4,R0       
+         A     R4,1        * starting char addr
+         LA    R5,3        * number of bytes
+
+CRSLOOP  EQU   *
+         A     R1,1     * increment char addr
+
+         CLI   0(R1),X'C1'       * compare with EBCDIC A
+         BNL   CRSLOW              * Not lower than A
+         WTOPC TEXT='LOW CHAR'
+         EXITC
+CRSLOW   EQU   *
+         CLI   0(R1),X'E9'       * compare with EBCDIC Z
+         BNH   CRSHIGH           * Not higher than Z
+         WTOPC TEXT='HIGH CHAR'
+         EXITC
+CRSHIGH  EQU   *
+         
+         CLI   0(R1),X'61'  * EBCDIC forward slash
+         BNE   CRSLOOP    * Loops if no ending fslash
+* R1 now has ending fslash addr
+* Calculate number of actual bytes
+         LR    R5,R1
+         S     R5,2
+         S     R5,R0       * actual bytes
+
+* verify if 2 or under bytes
+         C     R5,3       * Check if length equal to 3 bytes
+         BE    CRSLEN
+         WTOPC TEXT='CRS NOT 3 BYTES'
+         EXITC
+CRSLEN   EQU   *
+
+         MVI   R5,X'40'    * fill char is blank
+* fill char not needed as number of bytes should equal 3 at all times
+         MVCL  R2,R4       * Moved name into DL1 CBRW address
+
+* check if CME, SCI, or ART only
+         CLC   STUCRS,=C'CME'
+         BE    DDCRS
+         CLC   STUCRS,=C'SCI'
+         BE    DDCRS
+         CLC   STUCRS,=C'ART'
+         BE    DDCRS
+         WTOPC TEXT='CRS NOT CME, SCI, OR ART'  * Error
+         EXITC
+DDCRS    EQU   *
+
+
+* NUM validate and store
+
+* NAM validate and store
 
 SKPSEC   EQU   *
 
