@@ -777,9 +777,78 @@ CRSLEN   EQU   *
          EXITC
 DDCRS    EQU   *
 
-
+* NUM OR NAME
 * NUM validate and store
+* R1 starting slash addr
+* R2, R3, R4 FREE
 
+* check if letter or num, go to NAM if char
+         CLI   1(R1),X'F0'       * compare with EBCDIC 0
+         BL    DNAMPS
+
+         XR    R2,R2
+         XR    R3,R3
+         XR    R4,R4
+         
+         LR    R2,2(R1)       * copy register, as R2 will have output
+         LA    R3,R1      * max num bytes forward as last char
+         XR    R0,R0
+         IC    R0,X'60'    * dash ebcdic
+         SRST  R2,R3       * R2 now holds address of dash
+
+         LR    R3,R2       * Load last address to R3
+         SR    R3,R1       * sub first and last addr to get length
+         
+         C     R3,2       * Check if length over
+         BNH   DNUMLN
+         WTOPC TEXT='ROLL NUM OVER 2 BYTES'
+         EXITC
+         
+DNUMLN   EQU   *
+
+         LR    R4,R1       * current iteration address
+
+DNUMLP   EQU   *           * loops through chars and validates
+
+         CLI   0(R4),X'F0'       * compare with EBCDIC 0
+         BNL   DNUMLW              * Not lower than 0
+         WTOPC TEXT='LOW CHAR'
+         EXITC
+DNUMLW   EQU   *
+
+         CLI   0(R4),X'F9'       * compare with EBCDIC 9
+         BNH   DNUMHI           * Not higher than 9
+         WTOPC TEXT='HIGH CHAR'
+         EXITC
+DNUMHI   EQU   *
+
+         A     R4,1              * increment to next char addr
+         BCT   R3,DNUMLP
+
+* MVCL prep
+* R1 starting address
+* R2 end address of ending dash
+* R0,R3,R4,R5,R6 free
+         LR    R0,R2       * R0 now has end addr of fslash, R2 free
+* R2,R3
+         LA    R2,STUNUM   * addr of DL1 CBRW field
+         LA    R3,2       * number of bytes max for num
+         
+* R4
+         LR    R4,R1       * actual name start addr
+
+* R5
+         LR    R5,R0       * load last fslash
+         S     R5,1        * one char before fslash
+         SR    R5,R1       * number of bytes of actual name
+         MVI   R5,X'40'    * fill char is blank
+
+* Execute, information stored in DSECT
+         MVCL  R2,R4       * Moved name into DL1 CBRW address
+         B     SKPSEC      * skip name section
+DNUMPS   EQU   *
+
+* OR
 * NAM validate and store
 
 SKPSEC   EQU   *
