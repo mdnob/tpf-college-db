@@ -850,6 +850,61 @@ DNUMPS   EQU   *
 
 * OR
 * NAM validate and store
+* Validate field lengths
+* Name
+* R0 has starting slash
+         LR    R1,R0
+         A     R1,1        * holding starting char
+
+         LR    R2,15(R1)       * copy register, as R2 will have output
+         LA    R3,R1      * max num bytes forward as last char
+         XR    R0,R0
+         IC    R0,X'61'    * fslash ebcdic
+         SRST  R2,R3       * R2 now holds address of next fslash
+
+         LR    R3,R2       * Load last address to R3
+         SR    R3,R1       * sub first and last addr to get length
+         
+         C     R3,15       * Check if name length over 15 bytes
+         BNH   DNAMLN
+         WTOPC TEXT='NAME OVER 15 BYTES'
+         EXITC
+DNAMLN   EQU   *
+
+         LR    R4,R1       * current iteration address
+DNAMLP   EQU   *           * loops through chars and validates
+         CLI   0(R4),X'C1'       * compare with EBCDIC A
+         BNL   DNAMLW              * Not lower than A
+         WTOPC TEXT='LOW CHAR'
+         EXITC
+DNAMLW   EQU   *
+         CLI   0(R4),X'E9'       * compare with EBCDIC Z
+         BNH   DNAMHI           * Not higher than Z
+         CLI   0(R4),X'40'       * compare with EBCDIC blank
+         BE    NAMHIGH           * pass if blank char
+         WTOPC TEXT='HIGH CHAR'
+         EXITC
+DNAMHI   EQU   *
+         A     R4,1              * increment to next char addr
+         BCT   R3,DNAMLP
+
+* R1 starting address
+* R2 end address of fslash
+* R0,R3,R4,R5,R6 free
+         LR    R0,R2       * R0 now has end addr of fslash, R2 free
+
+         LA    R2,STUNAM   * addr of DL1 CBRW for name
+         LA    R3,15       * number of bytes max for name
+         
+         LR    R4,R1       * actual name start addr
+         
+         LR    R5,R0       * load last fslash
+         S     R5,1        * one char before fslash
+         SR    R5,R1       * number of bytes of actual name
+         MVI   R5,X'40'    * fill char is blank
+
+         MVCL  R2,R4       * Moved name into DL1 CBRW address
+
 
 SKPSEC   EQU   *
 
