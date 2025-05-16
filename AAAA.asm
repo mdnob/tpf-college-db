@@ -3,10 +3,10 @@
 * Student DSECT
 STUDENT  DSECT          * 190 bytes
 STUNUM   DS    XL2      * roll number
-STUNAM	 DS	   CL15     * full name
+STUNAM   DS    CL15     * full name
 STUAGE   DS    XL2      * 2 digit age
-STUTEL   DS	   XL10     * phone number
-STUADR	 DS    CL40     * mailing address
+STUTEL   DS    XL10     * phone number
+STUADR   DS    CL40     * mailing address
 STUCRS   DS    CL3      * course
 STUSBJ1  DS    CL20     * subjects
 STUSBJ2  DS    CL20
