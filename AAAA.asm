@@ -1,7 +1,7 @@
          BEGIN
 
 * Student DSECT
-STUDENT  DSECT          * 190 bytes
+STUDENT  DSECT
 STUNUM   DS    XL2      * roll number
 STUNAM   DS    CL15     * full name
 STUAGE   DS    XL2      * 2 digit age
@@ -23,7 +23,7 @@ STUSPR   DS    CL38     * spare 38 bytes
          XR    R5,R5       * PAC
 
 * Load entry input into data level memory
-         USING STUDENT,R7      * loads R7 with STUDENT DSECT
+         USING STUDENT,R7  * loads R7 with STUDENT DSECT
          GETCC D1,L1       * data level 1 with 381 bytes
          L     R7,CE1CR1   * assign data level to R7
 
@@ -59,22 +59,22 @@ AUPASS   EQU   *
 LOOP     EQU   *
          
 * Check for forward slash
-         CLI   0(R1),X'61'  * EBCDIC forward slash
-         BNE   SLASHES    * skips increment
-         A     R2,1		   * Increment forward slash count
+         CLI   0(R1),X'61'    * EBCDIC forward slash
+         BNE   SLASHES        * skips increment
+         A     R2,1		      * Increment forward slash count
 SLASHES  EQU   *
          
 * Check for comma
          CLI   0(R1),X'6B' * EBCDIC forward slash
-         BNE   COMMAS    * skips increment count of comma
-         A     R3,1		* Increment forward slash count
+         BNE   COMMAS      * skips increment count of comma
+         A     R3,1        * Increment forward slash count
 COMMAS   EQU   *
          
 * Check for open paren
          CLI   0(R1),X'4D'    * EBCDIC open parenthesis
          BE    OPAREN
          C     R4,0           * Check if first open parenthesis found
-         BE    PARENS       * skip close check if open not found first
+         BE    PARENS         * skip cpar check if opar not found first
 
 * Check for close paren
          CLI   0(R1),X'5D'    * EBCDIC close parenthesis
@@ -83,7 +83,7 @@ OPAREN   EQU   *
          A     R4,1
 PARENS   EQU   *
          
-         A     R1,1		* Increment address for next char
+         A     R1,1           * Increment address for next char
          BCT   R0,LOOP
 
 * Validate number of each special char
@@ -111,14 +111,14 @@ SUCPAREN EQU   *
          XR    R2,R2
          XR    R3,R3
          XR    R4,R4
-         LA    R1,MI0ACC+2      * start address of next field
+         LA    R1,MI0ACC+2 * start address of next field
 
 * Roll number: Update PAC only
          CLI   MI0ACC,X'E4'
-         BNE   NUMPASS        * pass if not update PAC
+         BNE   NUMPASS     * pass if not update PAC
          
-         LR    R2,2(R1)       * copy register, as R2 will have output
-         LA    R3,R1      * max num bytes forward as last char
+         LR    R2,2(R1)    * copy register, as R2 will have output
+         LA    R3,R1       * max num bytes forward as last char
          XR    R0,R0
          IC    R0,X'60'    * dash ebcdic
          SRST  R2,R3       * R2 now holds address of dash
@@ -126,7 +126,7 @@ SUCPAREN EQU   *
          LR    R3,R2       * Load last address to R3
          SR    R3,R1       * sub first and last addr to get length
          
-         C     R3,2       * Check if length over
+         C     R3,2        * Check if length over
          BNH   NUMLEN
          WTOPC TEXT='ROLL NUM OVER 2 BYTES'
          EXITC
@@ -137,8 +137,8 @@ NUMLEN   EQU   *
 
 NUMLOOP  EQU   *           * loops through chars and validates
 
-         CLI   0(R4),X'F0'       * compare with EBCDIC 0
-         BNL   NUMLOW              * Not lower than 0
+         CLI   0(R4),X'F0' * compare with EBCDIC 0
+         BNL   NUMLOW      * Not lower than 0
          WTOPC TEXT='LOW CHAR'
          EXITC
 NUMLOW   EQU   *
@@ -160,7 +160,7 @@ NUMHIGH  EQU   *
 
 * R2,R3
          LA    R2,STUNUM   * addr of DL1 CBRW field
-         LA    R3,2       * number of bytes max for num
+         LA    R3,2        * number of bytes max for num
          
 * R4
          LR    R4,R1       * actual name start addr
@@ -178,8 +178,8 @@ NUMPASS  EQU   *
 
 * Validate field lengths
 * Name
-         LR    R2,15(R1)       * copy register, as R2 will have output
-         LA    R3,R1      * max num bytes forward as last char
+         LR    R2,15(R1)   * copy register, as R2 will have output
+         LA    R3,R1       * max num bytes forward as last char
          XR    R0,R0
          IC    R0,X'61'    * fslash ebcdic
          SRST  R2,R3       * R2 now holds address of next fslash
@@ -195,8 +195,8 @@ NAMLEN   EQU   *
 
          LR    R4,R1       * current iteration address
 NAMLOOP  EQU   *           * loops through chars and validates
-         CLI   0(R4),X'C1'       * compare with EBCDIC A
-         BNL   NAMLOW              * Not lower than A
+         CLI   0(R4),X'C1' * compare with EBCDIC A
+         BNL   NAMLOW      * Not lower than A
          WTOPC TEXT='LOW CHAR'
          EXITC
 NAMLOW   EQU   *
@@ -241,10 +241,10 @@ NAMHIGH  EQU   *
          A     R4,1        * starting char addr
 
 AGELOOP  EQU   *
-         A     R1,1     * increment char addr
+         A     R1,1        * increment char addr
 
          CLI   0(R1),X'F0'       * compare with EBCDIC 0
-         BNL   AGELOW              * Not lower than 0
+         BNL   AGELOW            * Not lower than 0
          WTOPC TEXT='LOW CHAR'
          EXITC
 AGELOW   EQU   *
@@ -255,8 +255,8 @@ AGELOW   EQU   *
          EXITC
 AGEHIGH  EQU   *
          
-         CLI   0(R1),X'61'  * EBCDIC forward slash
-         BNE   AGELOOP    * Loops if no ending fslash
+         CLI   0(R1),X'61'    * EBCDIC forward slash
+         BNE   AGELOOP        * Loops if no ending fslash
 * R1 now has ending fslash addr
 * Calculate number of actual bytes of age
          LR    R5,R1
@@ -282,16 +282,16 @@ AGELEN   EQU   *
          LR    R0,R1       * copy addr to R0, R1 incremented addr
 * even-odd pairs for MVCL
          LA    R2,STUTEL   * destination addr in DL1 CBRW
-         LA    R3,10        * max number of bytes/chars
+         LA    R3,10       * max number of bytes/chars
 
          LR    R4,R0
          A     R4,1        * starting char addr
 
 TELLOOP  EQU   *
-         A     R1,1     * increment char addr
+         A     R1,1        * increment char addr
 
          CLI   0(R1),X'F0'       * compare with EBCDIC 0
-         BNL   TELLOW              * Not lower than 0
+         BNL   TELLOW            * Not lower than 0
          WTOPC TEXT='LOW CHAR'
          EXITC
 TELLOW   EQU   *
@@ -302,8 +302,8 @@ TELLOW   EQU   *
          EXITC
 TELHIGH  EQU   *
          
-         CLI   0(R1),X'61'  * EBCDIC forward slash
-         BNE   TELLOOP    * Loops if no ending fslash
+         CLI   0(R1),X'61'    * EBCDIC forward slash
+         BNE   TELLOOP        * Loops if no ending fslash
 * R1 now has ending fslash addr
 * Calculate number of actual bytes of tel
          LR    R5,R1
@@ -329,7 +329,7 @@ TELLEN   EQU   *
          LR    R0,R1       * copy addr to R0, R1 incremented addr
 * even-odd pairs for MVCL
          LA    R2,STUADR   * destination addr in DL1 CBRW
-         LA    R3,40        * max number of bytes/chars
+         LA    R3,40       * max number of bytes/chars
 
          LR    R4,R0
          A     R4,1        * starting ( addr
@@ -345,7 +345,7 @@ ADRLOOP  EQU   *
          A     R1,1     * increment char addr
 
          CLI   0(R1),X'E9'       * compare with EBCDIC Z
-         BNL   ADRALP             * Not lower than Z
+         BNL   ADRALP            * Not lower than Z
          CLI   0(R1),X'C1'       * compare with EBCDIC A
          BNL   ADRALP            * Not lower than A
          WTOPC TEXT='ADDRESS IS NOT IN ALPHABET'
@@ -353,25 +353,25 @@ ADRLOOP  EQU   *
 ADRALP   EQU   *
 
          CLI   0(R1),X'F9'       * compare with EBCDIC 9
-         BNL   ADRNUM             * Not lower than 9
+         BNL   ADRNUM            * Not lower than 9
          CLI   0(R1),X'F1'       * compare with EBCDIC 1
          BNL   ADRNUM            * Not lower than 1
          WTOPC TEXT='ADDRESS IS NOT NUMBER'
          EXITC
 ADRNUM   EQU   *
          
-         CLI   0(R1),X'40'       * compare with EBCDIC blank
+         CLI   0(R1),X'40'      * compare with EBCDIC blank
          BE    ADRSPL           * equals blank
-         CLI   0(R1),X'60'       * compare with EBCDIC /
+         CLI   0(R1),X'60'      * compare with EBCDIC /
          BE    ADRSPL           * equals /
-         CLI   0(R1),X'61'       * compare with EBCDIC -
+         CLI   0(R1),X'61'      * compare with EBCDIC -
          BE    ADRSPL           * equals -
          WTOPC TEXT='ADR INVALID CHAR'
          EXITC
 ADRSPL   EQU   *
          
-         CLI   0(R1),X'5D'  * EBCDIC )
-         BNE   ADRLOOP    * Loops if no ending ) close parentheses
+         CLI   0(R1),X'5D'    * EBCDIC )
+         BNE   ADRLOOP        * Loops if no ending ) close parentheses
 * R1 now has ending ) addr
 * Calculate number of actual bytes
          LR    R5,R1
@@ -392,7 +392,7 @@ ADRLEN   EQU   *
 
 
 * Course
-         A     R1,1  * R1 starting fslash
+         A     R1,1        * R1 starting fslash
 * R0 free, but needs new ending fslash
 * R2-R6 free
          LR    R0,R1       * incremented addr
@@ -405,10 +405,10 @@ ADRLEN   EQU   *
          LA    R5,3        * number of bytes
 
 CRSLOOP  EQU   *
-         A     R1,1     * increment char addr
+         A     R1,1        * increment char addr
 
          CLI   0(R1),X'C1'       * compare with EBCDIC A
-         BNL   CRSLOW              * Not lower than A
+         BNL   CRSLOW            * Not lower than A
          WTOPC TEXT='LOW CHAR'
          EXITC
 CRSLOW   EQU   *
@@ -418,16 +418,16 @@ CRSLOW   EQU   *
          EXITC
 CRSHIGH  EQU   *
          
-         CLI   0(R1),X'61'  * EBCDIC forward slash
-         BNE   CRSLOOP    * Loops if no ending fslash
+         CLI   0(R1),X'61'    * EBCDIC forward slash
+         BNE   CRSLOOP        * Loops if no ending fslash
 * R1 now has ending fslash addr
 * Calculate number of actual bytes
          LR    R5,R1
          S     R5,2
-         S     R5,R0       * actual bytes
+         S     R5,R0          * actual bytes
 
 * verify if 2 or under bytes
-         C     R5,3       * Check if length equal to 3 bytes
+         C     R5,3           * Check if length equal to 3 bytes
          BE    CRSLEN
          WTOPC TEXT='AGE OVER 2 BYTES'
          EXITC
@@ -565,7 +565,7 @@ SBJ4CHK  EQU   *
 * Now, validate CRS with SBJ combinations
 
          LA    R0,4        * iterate count
-         LA    R1,STUSBJ4 * dynamic address for SBJs
+         LA    R1,STUSBJ4  * dynamic address for SBJs
 
 * check if CME, SCI, or ART only
          CLC   STUCRS,=C'CME'
@@ -689,7 +689,7 @@ ITER1    EQU   *
 
          BCT   R0,CRSART
 
-         B     SKPSEC      * skips disp and del code sect
+         B     SKPSEC         * skips disp and del code sect
 
 * Asterisk and D entry validation
 VALID2   EQU   *
@@ -698,12 +698,12 @@ VALID2   EQU   *
 LOOP2    EQU   *
          
 * Check for forward slash
-         CLI   0(R1),X'61'  * EBCDIC forward slash
-         BNE   DDSLHS    * skips increment
-         A     R2,1		   * Increment forward slash count
+         CLI   0(R1),X'61'    * EBCDIC forward slash
+         BNE   DDSLHS         * skips increment
+         A     R2,1		      * Increment forward slash count
 DDSLHS   EQU   *
 
-         A     R1,1		* Increment address for next char
+         A     R1,1		      * Increment address for next char
          BCT   R0,LOOP2
 
 * Validate number of slashes
@@ -734,10 +734,10 @@ TWOSLH   EQU   *
          LA    R5,3        * number of bytes
 
 CRSLOOP  EQU   *
-         A     R1,1     * increment char addr
+         A     R1,1        * increment char addr
 
-         CLI   0(R1),X'C1'       * compare with EBCDIC A
-         BNL   CRSLOW              * Not lower than A
+         CLI   0(R1),X'C1'          * compare with EBCDIC A
+         BNL   CRSLOW               * Not lower than A
          WTOPC TEXT='LOW CHAR'
          EXITC
 CRSLOW   EQU   *
@@ -747,16 +747,16 @@ CRSLOW   EQU   *
          EXITC
 CRSHIGH  EQU   *
          
-         CLI   0(R1),X'61'  * EBCDIC forward slash
-         BNE   CRSLOOP    * Loops if no ending fslash
+         CLI   0(R1),X'61'    * EBCDIC forward slash
+         BNE   CRSLOOP        * Loops if no ending fslash
 * R1 now has ending fslash addr
 * Calculate number of actual bytes
          LR    R5,R1
          S     R5,2
-         S     R5,R0       * actual bytes
+         S     R5,R0          * actual bytes
 
 * verify if 2 or under bytes
-         C     R5,3       * Check if length equal to 3 bytes
+         C     R5,3           * Check if length equal to 3 bytes
          BE    CRSLEN
          WTOPC TEXT='CRS NOT 3 BYTES'
          EXITC
@@ -790,8 +790,8 @@ DDCRS    EQU   *
          XR    R3,R3
          XR    R4,R4
          
-         LR    R2,2(R1)       * copy register, as R2 will have output
-         LA    R3,R1      * max num bytes forward as last char
+         LR    R2,2(R1)    * copy register, as R2 will have output
+         LA    R3,R1       * max num bytes forward as last char
          XR    R0,R0
          IC    R0,X'60'    * dash ebcdic
          SRST  R2,R3       * R2 now holds address of dash
@@ -799,7 +799,7 @@ DDCRS    EQU   *
          LR    R3,R2       * Load last address to R3
          SR    R3,R1       * sub first and last addr to get length
          
-         C     R3,2       * Check if length over
+         C     R3,2        * Check if length over
          BNH   DNUMLN
          WTOPC TEXT='ROLL NUM OVER 2 BYTES'
          EXITC
@@ -811,13 +811,13 @@ DNUMLN   EQU   *
 DNUMLP   EQU   *           * loops through chars and validates
 
          CLI   0(R4),X'F0'       * compare with EBCDIC 0
-         BNL   DNUMLW              * Not lower than 0
+         BNL   DNUMLW            * Not lower than 0
          WTOPC TEXT='LOW CHAR'
          EXITC
 DNUMLW   EQU   *
 
          CLI   0(R4),X'F9'       * compare with EBCDIC 9
-         BNH   DNUMHI           * Not higher than 9
+         BNH   DNUMHI            * Not higher than 9
          WTOPC TEXT='HIGH CHAR'
          EXITC
 DNUMHI   EQU   *
@@ -832,7 +832,7 @@ DNUMHI   EQU   *
          LR    R0,R2       * R0 now has end addr of fslash, R2 free
 * R2,R3
          LA    R2,STUNUM   * addr of DL1 CBRW field
-         LA    R3,2       * number of bytes max for num
+         LA    R3,2        * number of bytes max for num
          
 * R4
          LR    R4,R1       * actual name start addr
@@ -856,8 +856,8 @@ DNUMPS   EQU   *
          LR    R1,R0
          A     R1,1        * holding starting char
 
-         LR    R2,15(R1)       * copy register, as R2 will have output
-         LA    R3,R1      * max num bytes forward as last char
+         LR    R2,15(R1)   * copy register, as R2 will have output
+         LA    R3,R1       * max num bytes forward as last char
          XR    R0,R0
          IC    R0,X'61'    * fslash ebcdic
          SRST  R2,R3       * R2 now holds address of next fslash
@@ -871,15 +871,15 @@ DNUMPS   EQU   *
          EXITC
 DNAMLN   EQU   *
 
-         LR    R4,R1       * current iteration address
-DNAMLP   EQU   *           * loops through chars and validates
+         LR    R4,R1             * current iteration address
+DNAMLP   EQU   *                 * loops through chars and validates
          CLI   0(R4),X'C1'       * compare with EBCDIC A
-         BNL   DNAMLW              * Not lower than A
+         BNL   DNAMLW            * Not lower than A
          WTOPC TEXT='LOW CHAR'
          EXITC
 DNAMLW   EQU   *
          CLI   0(R4),X'E9'       * compare with EBCDIC Z
-         BNH   DNAMHI           * Not higher than Z
+         BNH   DNAMHI            * Not higher than Z
          CLI   0(R4),X'40'       * compare with EBCDIC blank
          BE    NAMHIGH           * pass if blank char
          WTOPC TEXT='HIGH CHAR'
