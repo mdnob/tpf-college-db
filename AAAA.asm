@@ -72,15 +72,15 @@ COMMAS   EQU   *
          
 * Check for open paren
          CLI   0(R1),X'4D'    * EBCDIC open parenthesis
-         BE	   OPAREN
-         C	   R4,0           * Check if first open parenthesis found
-         BE	   PARENS       * skip close check if open not found first
+         BE    OPAREN
+         C     R4,0           * Check if first open parenthesis found
+         BE    PARENS       * skip close check if open not found first
 
 * Check for close paren
          CLI   0(R1),X'5D'    * EBCDIC close parenthesis
          BNE   PARENS         * skips increment
 OPAREN   EQU   *
-         A	   R4,1
+         A     R4,1
 PARENS   EQU   *
          
          A     R1,1		* Increment address for next char
@@ -111,7 +111,7 @@ SUCPAREN EQU   *
          XR    R2,R2
          XR    R3,R3
          XR    R4,R4
-         LA	   R1,MI0ACC+2      * start address of next field
+         LA    R1,MI0ACC+2      * start address of next field
 
 * Roll number: Update PAC only
          CLI   MI0ACC,X'E4'
