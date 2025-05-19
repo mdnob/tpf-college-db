@@ -1,5 +1,6 @@
          BEGIN
-
+* modularize program
+* basr to repeated work
 * Student DSECT
 STUDENT  DSECT
 STUNUM   DS    XL2      * roll number
@@ -176,57 +177,9 @@ NUMHIGH  EQU   *
 
 NUMPASS  EQU   *
 
-* Validate field lengths
-* Name
-         LR    R2,15(R1)   * copy register, as R2 will have output
-         LA    R3,R1       * max num bytes forward as last char
-         XR    R0,R0
-         IC    R0,X'61'    * fslash ebcdic
-         SRST  R2,R3       * R2 now holds address of next fslash
-
-         LR    R3,R2       * Load last address to R3
-         SR    R3,R1       * sub first and last addr to get length
-         
-         C     R3,15       * Check if name length over 15 bytes
-         BNH   NAMLEN
-         WTOPC TEXT='NAME OVER 15 BYTES'
-         EXITC
-NAMLEN   EQU   *
-
-         LR    R4,R1       * current iteration address
-NAMLOOP  EQU   *           * loops through chars and validates
-         CLI   0(R4),X'C1' * compare with EBCDIC A
-         BNL   NAMLOW      * Not lower than A
-         WTOPC TEXT='LOW CHAR'
-         EXITC
-NAMLOW   EQU   *
-         CLI   0(R4),X'E9'       * compare with EBCDIC Z
-         BNH   NAMHIGH           * Not higher than Z
-         CLI   0(R4),X'40'       * compare with EBCDIC blank
-         BE    NAMHIGH           * pass if blank char
-         WTOPC TEXT='HIGH CHAR'
-         EXITC
-NAMHIGH  EQU   *
-         A     R4,1              * increment to next char addr
-         BCT   R3,NAMLOOP
-
-* R1 starting address
-* R2 end address of fslash
-* R0,R3,R4,R5,R6 free
-         LR    R0,R2       * R0 now has end addr of fslash, R2 free
-
-         LA    R2,STUNAM   * addr of DL1 CBRW for name
-         LA    R3,15       * number of bytes max for name
-         
-         LR    R4,R1       * actual name start addr
-         
-         LR    R5,R0       * load last fslash
-         S     R5,1        * one char before fslash
-         SR    R5,R1       * number of bytes of actual name
-         MVI   R5,X'40'    * fill char is blank
-
-         MVCL  R2,R4       * Moved name into DL1 CBRW address
-
+* commplete age subroutine next
+* R2 can have DSECT location alloc to reg before subroutine call
+* so it can be used for both age and roll number
 
 * Age
 * R0 starting fslash
@@ -940,5 +893,49 @@ DEL      EQU   *
 * SUCCESS
          WTOPC TEXT='EXECUTED SUCCESSFULLY'
          EXITC 
+
+* Name
+* R1: starting char
+NAMSEC   EQU   *
+         LR    R4,R1       * save starting char
+NAMLOP   EQU   *           * loops through chars and validates
+
+         CLI   0(R1),X'C1' * compare with EBCDIC A
+         BNL   NAMLOW      * Not lower than A
+         WTOPC TEXT='LOW CHAR'
+         EXITC
+NAMLOW   EQU   *
+
+         CLI   0(R1),X'E9'       * compare with EBCDIC Z
+         BNH   NAMHGH            * Not higher than Z
+         CLI   0(R1),X'40'       * compare with EBCDIC blank
+         BE    NAMHGH            * pass if blank char
+         WTOPC TEXT='HIGH CHAR'
+         EXITC
+NAMHGH   EQU   *
+
+         CLI   0(R1),X'61'    * EBCDIC forward slash
+         A     R1,1           * next char increment
+         BNE   NAMLOP         * Loops if no ending fslash
+
+* R1: next entry sections starting char
+* R4: starting char
+         LR    R5,R4       * Load last addr
+         SR    R5,R1       * sub first and last addr to get length
+         S     R5,2        * exclude end slash, next entry start char
+         
+         C     R5,15       * Check if name length over 15 bytes
+         BNH   NAMLEN
+         WTOPC TEXT='NAME OVER 15 BYTES'
+         EXITC
+NAMLEN   EQU   *
+
+* R5: num of used bytes         
+         LA    R2,STUNAM   * DSECT loc addr
+         LA    R3,15       * name max bytes
+         MVI   R5,X'40'    * fill char is blank
+         MVCL  R2,R4       * Moved name into DL1 CBRW address
+
+         BR    R15         * go back to mainline
 
          FINIS
