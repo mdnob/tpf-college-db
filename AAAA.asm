@@ -935,7 +935,7 @@ NAMLEN   EQU   *
          LA    R3,15       * name max bytes
          MVI   R5,X'40'    * fill char is blank
          MVCL  R2,R4       * Moved name into DL1 CBRW address
-
+         A     R1,1        * Increment pointer to next starting char
          BR    R15         * go back to mainline
 
          FINIS
