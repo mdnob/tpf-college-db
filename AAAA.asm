@@ -939,4 +939,52 @@ ALPLEN   EQU   *
          MVCL  R2,R4       * Moved name into DL1 CBRW address
          BR    R15         * go back to mainline
 
+
+* Numbers
+* R1: starting char
+* R2: DSECT location
+* R3: max bytes
+* R15: branch back
+NUMSEC   EQU   *
+
+         LR    R4,R1             * save starting char addr
+
+NUMLOP   EQU   *
+
+         CLI   0(R1),X'F0'       * EBCDIC 0
+         BNL   NUMLOW
+         WTOPC TEXT='LOW CHAR'
+         EXITC
+NUMLOW   EQU   *
+
+         CLI   0(R1),X'F9'       * EBCDIC 9
+         BNH   NUMHGH
+         WTOPC TEXT='HIGH CHAR'
+         EXITC
+NUMHGH   EQU   *
+
+         A     R1,1              * next char
+         CLI   0(R1),X'61'       * EBCDIC /
+         BE    NUMPAS
+         CLI   0(R1),X'60'       * EBCDIC -
+         BE    NUMPAS
+         B     NUMLOP
+NUMPAS   EQU   *                 * ends loop
+
+* R1: end slash char addr
+* R4: starting char
+         LR    R5,R4
+         SR    R5,R1
+         C     R5,R3
+         BNH   NUMLEN
+         WTOPC TEXT='NUMBERS OVER MAX BYTES'
+         EXITC
+NUMLEN   EQU   *
+
+* R5: number of used bytes
+         MVI   R5,X'40'    * blank fill char
+         MVCL  R2,R4
+         A     R1,1        * next section start char
+         BR    R15
+
          FINIS
