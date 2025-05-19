@@ -894,29 +894,33 @@ DEL      EQU   *
          WTOPC TEXT='EXECUTED SUCCESSFULLY'
          EXITC 
 
-* Name
+
+* Alpha with space
 * R1: starting char
-NAMSEC   EQU   *
+* R2: DSECT location
+* R3: max bytes
+* R15: branch back
+ALPSEC   EQU   *
          LR    R4,R1       * save starting char
-NAMLOP   EQU   *           * loops through chars and validates
+ALPLOP   EQU   *           * loops through chars and validates
 
          CLI   0(R1),X'C1' * compare with EBCDIC A
-         BNL   NAMLOW      * Not lower than A
+         BNL   ALPLOW      * Not lower than A
          WTOPC TEXT='LOW CHAR'
          EXITC
-NAMLOW   EQU   *
+ALPLOW   EQU   *
 
          CLI   0(R1),X'E9'       * compare with EBCDIC Z
-         BNH   NAMHGH            * Not higher than Z
+         BNH   ALPHGH            * Not higher than Z
          CLI   0(R1),X'40'       * compare with EBCDIC blank
-         BE    NAMHGH            * pass if blank char
+         BE    ALPHGH            * pass if blank char
          WTOPC TEXT='HIGH CHAR'
          EXITC
-NAMHGH   EQU   *
+ALPHGH   EQU   *
 
          CLI   0(R1),X'61'    * EBCDIC forward slash
          A     R1,1           * next char increment
-         BNE   NAMLOP         * Loops if no ending fslash
+         BNE   ALPLOP         * Loops if no ending fslash
 
 * R1: next entry sections starting char
 * R4: starting char
@@ -924,18 +928,15 @@ NAMHGH   EQU   *
          SR    R5,R1       * sub first and last addr to get length
          S     R5,2        * exclude end slash, next entry start char
          
-         C     R5,15       * Check if name length over 15 bytes
-         BNH   NAMLEN
-         WTOPC TEXT='NAME OVER 15 BYTES'
+         C     R5,R3
+         BNH   ALPLEN
+         WTOPC TEXT='CHARS OVER MAX BYTES'
          EXITC
-NAMLEN   EQU   *
+ALPLEN   EQU   *
 
 * R5: num of used bytes         
-         LA    R2,STUNAM   * DSECT loc addr
-         LA    R3,15       * name max bytes
          MVI   R5,X'40'    * fill char is blank
          MVCL  R2,R4       * Moved name into DL1 CBRW address
-
          BR    R15         * go back to mainline
 
          FINIS
