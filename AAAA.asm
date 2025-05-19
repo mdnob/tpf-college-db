@@ -987,4 +987,68 @@ NUMLEN   EQU   *
          A     R1,1        * next section start char
          BR    R15
 
+
+* Address
+* R1: starting ( char
+* R15: branch back
+         CLI   0(R1),X'4D'    * EBCDIC (
+         BE    ADROPR
+         WTOPC TEXT='ADR OPEN PARENTHESES MISSING'
+         EXITC
+ADROPR   EQU   *
+
+         LR    R4,R1
+         LA    R2,STUADR
+         LA    R3,40
+
+ADRLOP   EQU   *
+         A     R1,1     * increment char addr
+
+         CLI   0(R1),X'E9'       * EBCDIC Z
+         BNL   ADRALP
+         CLI   0(R1),X'C1'       * EBCDIC A
+         BNL   ADRALP
+         WTOPC TEXT='ADDRESS IS NOT IN ALPHABET'
+         EXITC
+ADRALP   EQU   *
+
+         CLI   0(R1),X'F9'       * EBCDIC 9
+         BNL   ADRNUM
+         CLI   0(R1),X'F1'       * EBCDIC 1
+         BNL   ADRNUM
+         WTOPC TEXT='ADDRESS IS NOT NUMBER'
+         EXITC
+ADRNUM   EQU   *
+         
+         CLI   0(R1),X'40'      * EBCDIC blank
+         BE    ADRSPL
+         CLI   0(R1),X'60'      * EBCDIC /
+         BE    ADRSPL
+         CLI   0(R1),X'61'      * EBCDIC -
+         BE    ADRSPL
+         WTOPC TEXT='ADR INVALID CHAR'
+         EXITC
+ADRSPL   EQU   *
+         
+         CLI   0(R1),X'5D'    * EBCDIC )
+         BNE   ADRLOP         * Loops if no ending ) close parentheses
+
+* R1: end ) char
+* R4: start ( char
+         LR    R5,R1
+         A     R4,1        * start char
+         S     R5,R4
+         S     R5,1        * deduct )
+
+         C     R5,R3
+         BNH   ADRLEN
+         WTOPC TEXT='ADR OVER 40 BYTES'
+         EXITC
+ADRLEN   EQU   *
+
+         MVI   R5,X'40'    * fill char
+         MVCL  R2,R4
+         A     R1,2        * next section start char
+         BR    R15
+
          FINIS
