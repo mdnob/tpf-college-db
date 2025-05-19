@@ -902,6 +902,7 @@ DEL      EQU   *
 * R15: branch back
 ALPSEC   EQU   *
          LR    R4,R1       * save starting char
+
 ALPLOP   EQU   *           * loops through chars and validates
 
          CLI   0(R1),X'C1' * compare with EBCDIC A
@@ -918,15 +919,19 @@ ALPLOW   EQU   *
          EXITC
 ALPHGH   EQU   *
 
-         CLI   0(R1),X'61'    * EBCDIC forward slash
          A     R1,1           * next char increment
-         BNE   ALPLOP         * Loops if no ending fslash
+         CLI   0(R1),X'61'    * EBCDIC /
+         BE    ALPPAS
+         CLI   0(R1),X'6B'    * EBCDIC ,
+         BE    ALPPAS
+         B     ALPLOP
+ALPPAS   EQU   *
 
-* R1: next entry sections starting char
-* R4: starting char
-         LR    R5,R4       * Load last addr
-         SR    R5,R1       * sub first and last addr to get length
-         S     R5,2        * exclude end slash, next entry start char
+* R1: end /
+* R4: start char
+         LR    R5,R4       * last addr
+         SR    R5,R1       * sub first and last addr
+         S     R5,1        * exclude end slash
          
          C     R5,R3
          BNH   ALPLEN
@@ -934,9 +939,10 @@ ALPHGH   EQU   *
          EXITC
 ALPLEN   EQU   *
 
-* R5: num of used bytes         
-         MVI   R5,X'40'    * fill char is blank
-         MVCL  R2,R4       * Moved name into DL1 CBRW address
+* R5: used bytes         
+         MVI   R5,X'40'    * blank fill char
+         MVCL  R2,R4
+         A     R1,1        * next section start char
          BR    R15         * go back to mainline
 
 
