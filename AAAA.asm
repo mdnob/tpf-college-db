@@ -1086,4 +1086,25 @@ ADRLEN   EQU   *
          A     R1,2        * next section start char
          BR    R15
 
+* Subject count
+* R0: iteration
+* R2: STUSBJ#
+* R15: branch back
+SBJSEC   EQU   *
+         C     R0,3
+         BNE   ITER3
+         LA    R2,STUSBJ3
+ITER3    EQU   *
+
+         C     R0,2
+         BNE   ITER2
+         LA    R2,STUSBJ2
+ITER2    EQU   *
+
+         C     R0,1
+         BNE   ITER1
+         LA    R2,STUSBJ1
+ITER1    EQU   *
+         BR    R15
+
          FINIS
