@@ -107,7 +107,7 @@ UPZERO   EQU   *
 * R2: DSECT location
 * R3: max bytes
 * R15: branch back
-         LA    R2,STUCRS
+         LA    R2,STUSPR   * Store into different spare location
          LA    R3,3
          BAS   R15,ALPSEC  * CRS validated and stored
 * R1: next section star char
