@@ -894,6 +894,35 @@ DEL      EQU   *
          WTOPC TEXT='EXECUTED SUCCESSFULLY'
          EXITC 
 
+* Reused code sections
+
+* Special chars
+* / , () count
+* R2: used slashes
+* R3: used commas
+* R4: used parentheses
+* R12: slash count
+* R13: comma count
+* R14: parentheses count
+SPCSEC   EQU   *
+         C     R2,R12
+         BH    SPCSLA
+         WTOPC TEXT='MISSING SLASHES'
+         EXITC
+SPCSLA   EQU   *
+         
+         C     R3,R13
+         BH    SPCCOM
+         WTOPC TEXT='MISSING COMMAS'
+         EXITC
+SPCCOM   EQU   *
+
+         C     R4,R14
+         BH    SPCPAR
+         WTOPC TEXT='MISSING PARENTHESES PAIR'
+         EXITC
+SPCPAR   EQU   *
+
 
 * Alpha with space
 * R1: starting char
