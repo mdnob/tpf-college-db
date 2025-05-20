@@ -43,21 +43,9 @@ STUSPR   DS    CL38     * spare 38 bytes
 SUCPAC   EQU   *
 
          A     R1,1     * Next char
-
-* Branch to * and D entry validation, as it requires different format
-         CLI   0(R1),X'C1' * A
-         BE    AUPASS
-         CLI   0(R1),X'E4' * U
-         BE    AUPASS
-         B     VALID2      * Branch to * and D entry validation
-AUPASS   EQU   *
-
-
-* A and U PACs continue
-
          
 * Loops the number of input chars
-LOOP     EQU   *
+SPCLOP     EQU   *
          
 * Check for forward slash
          CLI   0(R1),X'61'    * EBCDIC forward slash
@@ -85,97 +73,17 @@ OPAREN   EQU   *
 PARENS   EQU   *
          
          A     R1,1           * Increment address for next char
-         BCT   R0,LOOP
+         BCT   R0,SPCLOP
 
-* Validate number of each special char
-         C     R2,6  * 6 SLASH
-         BE    SUCSLASH
-         WTOPC TEXT='NOT 6 FORWARD SLASHES'
-         EXITC
-SUCSLASH EQU   *
-         
-         C     R3,3  * 3 COMMA
-         BE    SUCCOMMA
-         WTOPC TEXT='NOT 3 COMMAS'
-         EXITC
-SUCCOMMA EQU   *
-         
+         LA    R1,MI0ACC      * reset to start entry
 
-         C     R4,2  * 2 PARENS
-         BE    SUCPAREN
-         WTOPC TEXT='NOT OPEN AND CLOSE PAREN PAIR'
-         EXITC
-SUCPAREN EQU   *
-
-
-* R2, R3, R4 FREE
-         XR    R2,R2
-         XR    R3,R3
-         XR    R4,R4
-         LA    R1,MI0ACC+2 * start address of next field
-
-* Roll number: Update PAC only
-         CLI   MI0ACC,X'E4'
-         BNE   NUMPASS     * pass if not update PAC
-         
-         LR    R2,2(R1)    * copy register, as R2 will have output
-         LA    R3,R1       * max num bytes forward as last char
-         XR    R0,R0
-         IC    R0,X'60'    * dash ebcdic
-         SRST  R2,R3       * R2 now holds address of dash
-
-         LR    R3,R2       * Load last address to R3
-         SR    R3,R1       * sub first and last addr to get length
-         
-         C     R3,2        * Check if length over
-         BNH   NUMLEN
-         WTOPC TEXT='ROLL NUM OVER 2 BYTES'
-         EXITC
-         
-NUMLEN   EQU   *
-
-         LR    R4,R1       * current iteration address
-
-NUMLOOP  EQU   *           * loops through chars and validates
-
-         CLI   0(R4),X'F0' * compare with EBCDIC 0
-         BNL   NUMLOW      * Not lower than 0
-         WTOPC TEXT='LOW CHAR'
-         EXITC
-NUMLOW   EQU   *
-
-         CLI   0(R4),X'F9'       * compare with EBCDIC 9
-         BNH   NUMHIGH           * Not higher than 9
-         WTOPC TEXT='HIGH CHAR'
-         EXITC
-NUMHIGH  EQU   *
-
-         A     R4,1              * increment to next char addr
-         BCT   R3,NUMLOOP
-
-* MVCL prep
-* R1 starting address
-* R2 end address of ending dash
-* R0,R3,R4,R5,R6 free
-         LR    R0,R2       * R0 now has end addr of fslash, R2 free
-
-* R2,R3
-         LA    R2,STUNUM   * addr of DL1 CBRW field
-         LA    R3,2        * number of bytes max for num
-         
-* R4
-         LR    R4,R1       * actual name start addr
-
-* R5
-         LR    R5,R0       * load last fslash
-         S     R5,1        * one char before fslash
-         SR    R5,R1       * number of bytes of actual name
-         MVI   R5,X'40'    * fill char is blank
-
-* Execute, information stored in DSECT
-         MVCL  R2,R4       * Moved name into DL1 CBRW address
-
-NUMPASS  EQU   *
+* Branch to * and D entry validation, as it requires different format
+         CLI   0(R1),X'C1' * A
+         BE    AUPASS
+         CLI   0(R1),X'E4' * U
+         BE    AUPASS
+         B     DDPASS      * Branch to * and D entry validation
+AUPASS   EQU   *
 
 * commplete age subroutine next
 * R2 can have DSECT location alloc to reg before subroutine call
