@@ -419,6 +419,8 @@ SPCPAR   EQU   *
 * R3: max bytes
 * R15: branch back
 ALPSEC   EQU   *
+         BAS   R14,EMTSEC  * check if emtpy field
+
          LR    R4,R1       * save starting char
 
 ALPLOP   EQU   *           * loops through chars and validates
@@ -470,6 +472,7 @@ ALPLEN   EQU   *
 * R3: max bytes
 * R15: branch back
 NUMSEC   EQU   *
+         BAS   R14,EMTSEC  * check if emtpy field
 
          LR    R4,R1             * save starting char addr
 
@@ -516,6 +519,8 @@ NUMLEN   EQU   *
 * R1: starting ( char
 * R15: branch back
 ADRSEC   EQU   *
+         BAS   R14,EMTSEC  * check if emtpy field
+
          CLI   0(R1),X'4D'    * EBCDIC (
          BE    ADROPR
          WTOPC TEXT='ADR OPEN PARENTHESES MISSING'
@@ -596,5 +601,21 @@ ITER2    EQU   *
          LA    R2,STUSBJ1
 ITER1    EQU   *
          BR    R15
+
+* Empty check
+* R1: start char
+EMTSEC   EQU   *
+         CLI   0(R1),X'61'    * EBCDIC /
+         BNE   EMTPAS
+         CLI   MI0ACC,X'E4'   * EBCIDC U
+         BE    EMTUPD
+         WTOPC TEXT='FIELD IS MISSING'
+         EXITC
+
+EMTPAS   EQU   *
+         BR    R14   * to reused code section
+
+EMTUPD   EQU   *
+         BR    R15   * valid empty update field, to AU logic
 
          FINIS
