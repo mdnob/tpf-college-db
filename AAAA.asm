@@ -862,9 +862,7 @@ DNAMHI   EQU   *
 SKPSEC   EQU   *
 
 * ENTRC to next program with A, U, *, D functionalities
-
          LA    R1,MI0ACC
-
 * Add
          CLI   0(R1),X'C1'    * EBCDIC for A
          BNE   ADD            * Skip
@@ -888,7 +886,6 @@ DISP     EQU   *
          BNE   DEL
          ENTRC DDDD
 DEL      EQU   *
-
 
 * SUCCESS
          WTOPC TEXT='EXECUTED SUCCESSFULLY'
@@ -1026,6 +1023,7 @@ NUMLEN   EQU   *
 * Address
 * R1: starting ( char
 * R15: branch back
+ADRSEC   EQU   *
          CLI   0(R1),X'4D'    * EBCDIC (
          BE    ADROPR
          WTOPC TEXT='ADR OPEN PARENTHESES MISSING'
