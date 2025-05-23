@@ -1,20 +1,4 @@
-         BEGIN
-* modularize program
-* basr to repeated work
-* Student DSECT
-STUDENT  DSECT
-STUNUM   DS    XL2      * roll number
-STUNAM   DS    CL15     * full name
-STUAGE   DS    XL2      * 2 digit age
-STUTEL   DS    XL10     * phone number
-STUADR   DS    CL40     * mailing address
-STUCRS   DS    CL3      * course
-STUSBJ1  DS    CL20     * subjects
-STUSBJ2  DS    CL20
-STUSBJ3  DS    CL20
-STUSBJ4  DS    CL20     * 152 bytes from here
-STUSPR   DS    CL38     * spare 38 bytes
-         END
+         BEGIN NAME=AAAA
 
          LA    R1,MI0ACC   * input start address into R1
          LA    R0,MI0CCT   * Total number of bytes char 160
@@ -24,7 +8,7 @@ STUSPR   DS    CL38     * spare 38 bytes
          XR    R5,R5       * PAC
 
 * Load entry input into data level memory
-         USING STUDENT,R7  * loads R7 with STUDENT DSECT
+         ADDAT REG=R7      * loads R7 with STUDENT DSECT
          GETCC D1,L1       * data level 1 with 381 bytes
          L     R7,CE1CR1   * assign data level to R7
 

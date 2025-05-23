@@ -1,0 +1,26 @@
+* STUDENT Macro
+* 190 bytes total, 152 fields + 10 separators + 28 spare
+STUDENT  DSECT
+STUOUT   DS    0CL161   * address to all data, used to print output
+STUNUM   DS    XL2      * roll number
+FLDSP0   DC    X'40'    * field separator white space
+STUNAM   DS    CL15     * full name
+FLDSP1   DC    X'40'    * field separator white space
+STUAGE   DS    XL2      * 2 digit age
+FLDSP2   DC    X'40'    * field separator white space
+STUTEL   DS    XL10     * phone number
+FLDSP3   DC    X'40'    * field separator white space
+STUADR   DS    CL40     * mailing address
+FLDSP4   DC    X'40'    * field separator white space
+STUCRS   DS    CL3      * course
+FLDSP5   DC    X'40'    * field separator white space
+STUSBJ1  DS    CL20     * subjects
+FLDSP6   DC    X'40'    * field separator white space
+STUSBJ2  DS    CL20
+FLDSP7   DC    X'40'    * field separator white space
+STUSBJ3  DS    CL20
+FLDSP8   DC    X'40'    * field separator white space
+STUSBJ4  DS    CL20     * 152 bytes from here
+FLDSP9   DC    X'40'    * field separator white space
+STUSPR   DS    CL28     * spare 28 bytes
+         END
