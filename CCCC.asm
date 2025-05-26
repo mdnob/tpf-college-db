@@ -62,7 +62,6 @@ NUMCHK   EQU   *
          B     NXTPOL
 NXTPOL   EQU   *
          A     R1,4                 * next pool file addr
-         RELCC D3                   * Release read-only pool file copy
          B     FNDPOL               * repeat
 FOUNDP   EQU   *
 
