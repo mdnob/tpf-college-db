@@ -1,8 +1,9 @@
          BEGIN NAME=CCCC
 
 * Load entry input into data level memory
-         ADDAT REG=R5      * loads with STUDENT DSECT
-         L     R5,CE1CR1   * assign data level
+         DROP                       * drops registers
+         ADDAT REG=R5               * loads with STUDENT DSECT
+         L     R5,CE1CR1            * assign data level
 
 * Fixed file      
 * Ordinal num based on CRS
